@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حضور المسمّعين - نظام حضور حلقة القرآن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="logo.jpg" alt="Logo" class="sidebar-logo">
+            <h3>حلقة القرآن</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="absensi-santri.html"><i class="fas fa-users"></i> حضور الطلاب</a>
+            <a href="absensi-musammi.html" class="active"><i class="fas fa-user-graduate"></i> حضور المسمّعين</a>
+            <a href="laporan.html"><i class="fas fa-file-alt"></i> التقارير</a>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <header>
+            <div class="header-left">
+                <button class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>حضور المسمّعين</h2>
+            </div>
+            <div class="header-right">
+                <span id="currentDate"></span>
+                <div class="user-profile">
+                    <img src="images/user.png" alt="User">
+                    <span>المشرف</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="content">
+            <div class="card">
+                <div class="card-header">
+                    <h3>تسجيل حضور المسمّعين</h3>
+                </div>
+                <div class="card-body">
+                    <form id="musammiForm" autocomplete="off">
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="musammiDate">تاريخ الحضور:</label>
+                                <input type="date" id="musammiDate" class="form-control" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="musammiTime">وقت الحلقة:</label>
+                                <select id="musammiTime" class="form-control" required>
+                                    <option value="subuh">بعد الفجر</option>
+                                    <option value="morning">الصباح (08:00)</option>
+                                    <option value="ashar">بعد العصر</option>
+                                    <option value="isha">بعد العشاء</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="musammiType">نوع المسمّع:</label>
+                                <select id="musammiType" class="form-control" required>
+                                    <option value="">اختر النوع...</option>
+                                    <option value="jami">جامعي</option>
+                                    <option value="aliyah">عليا</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div id="musammiListContainer" style="display: none;">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="35%">اسم المسمّع</th>
+                                        <th width="20%">الحالة</th>
+                                        <th width="40%">ملاحظات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="musammiList">
+                                    <!-- Musammi will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <button id="submitMusammi" class="btn btn-success btn-lg">
+                            <i class="fas fa-save"></i> حفظ الحضور
+                        </button>
+                    </div>
+                    
+                    <div id="noTypeSelected" class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> الرجاء اختيار نوع المسمّع لعرض القائمة
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script order: auth, utils, spreadsheet, musammi -->
+    <script src="script.js"></script>
+    <script src="spreadsheet.js"></script>
+    <script>
+    // DOMContentLoaded wrapper to avoid duplicate events
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default date today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('musammiDate').value = today;
+
+        const musammiTypeSelect = document.getElementById('musammiType');
+        const musammiListContainer = document.getElementById('musammiListContainer');
+        const noTypeSelected = document.getElementById('noTypeSelected');
+        const submitBtn = document.getElementById('submitMusammi');
+        const musammiList = document.getElementById('musammiList');
+        const musammiTime = document.getElementById('musammiTime');
+        const musammiDate = document.getElementById('musammiDate');
+
+        // Fetch musammi list from backend
+        musammiTypeSelect.addEventListener('change', async function() {
+            const selectedType = this.value;
+            musammiList.innerHTML = '';
+            if (selectedType) {
+                try {
+                    // Get musammi list by type
+                    const musammis = await getFromSheet('Musammi', { type: selectedType });
+                    if (musammis.length > 0) {
+                        let html = '';
+                        musammis.forEach((musammi, index) => {
+                            html += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${musammi.Name || musammi.name}</td>
+                                    <td>
+                                        <select class="form-control status-select" data-id="${musammi.id || musammi.ID || index}">
+                                            <option value="hadir">حاضر</option>
+                                            <option value="alpa">غائب</option>
+                                            <option value="izin">إذن</option>
+                                            <option value="sakit">مريض</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control notes-input" data-id="${musammi.id || musammi.ID || index}" placeholder="ملاحظات...">
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        musammiList.innerHTML = html;
+                        musammiListContainer.style.display = 'block';
+                        noTypeSelected.style.display = 'none';
+                    } else {
+                        musammiListContainer.style.display = 'none';
+                        noTypeSelected.style.display = 'block';
+                        noTypeSelected.innerHTML = '<i class="fas fa-info-circle"></i> لا يوجد مسمّعين مسجلين في هذا النوع';
+                    }
+                } catch (e) {
+                    musammiListContainer.style.display = 'none';
+                    noTypeSelected.style.display = 'block';
+                    noTypeSelected.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فشل في الاتصال بالخادم';
+                }
+            } else {
+                musammiListContainer.style.display = 'none';
+                noTypeSelected.style.display = 'block';
+                noTypeSelected.innerHTML = '<i class="fas fa-info-circle"></i> الرجاء اختيار نوع المسمّع لعرض القائمة';
+            }
+        });
+
+        // Submit attendance
+        submitBtn.addEventListener('click', async function() {
+            const attendanceDate = musammiDate.value;
+            const halaqahTime = musammiTime.value;
+            const musammiType = musammiTypeSelect.value;
+            if (!attendanceDate) {
+                alert('الرجاء اختيار تاريخ الحضور');
+                musammiDate.focus();
+                return;
+            }
+            if (!musammiType) {
+                alert('الرجاء اختيار نوع المسمّع');
+                musammiTypeSelect.focus();
+                return;
+            }
+            // Collect attendance data from form
+            const statusSelects = document.querySelectorAll('.status-select');
+            if (statusSelects.length === 0) {
+                alert('لا يوجد بيانات مسمّع!');
+                return;
+            }
+            const attendanceData = [];
+            const now = new Date().toISOString();
+            statusSelects.forEach(select => {
+                const musammiId = select.dataset.id;
+                const status = select.value;
+                const note = document.querySelector(`.notes-input[data-id="${musammiId}"]`).value;
+                const name = select.closest('tr').querySelector('td:nth-child(2)').textContent;
+                attendanceData.push({
+                    timestamp: now,
+                    date: attendanceDate,
+                    name: name,
+                    type: musammiType,
+                    time: halaqahTime,
+                    status: status,
+                    notes: note,
+                    category: 'musammi'
+                });
+            });
+
+            // Disable button to prevent double submit
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الحفظ...';
+
+            try {
+                const result = await sendToSheet(attendanceData, 'Musammi');
+                if (result.success) {
+                    alert('تم حفظ بيانات الحضور بنجاح');
+                    // Reset form
+                    musammiTypeSelect.value = '';
+                    musammiListContainer.style.display = 'none';
+                    noTypeSelected.style.display = 'block';
+                    noTypeSelected.innerHTML = '<i class="fas fa-info-circle"></i> الرجاء اختيار نوع المسمّع لعرض القائمة';
+                } else {
+                    throw new Error(result.message || 'Failed to save data');
+                }
+            } catch (error) {
+                alert('حدث خطأ أثناء حفظ البيانات. الرجاء المحاولة مرة أخرى.\n' + error.message);
+            }
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> حفظ الحضور';
+        });
+    });
+    </script>
+</body>
+</html>

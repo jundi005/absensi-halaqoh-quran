@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حضور الطلاب - نظام حضور حلقة القرآن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="logo.jpg" alt="Logo" class="sidebar-logo">
+            <h3>حلقة القرآن</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="absensi-santri.html" class="active"><i class="fas fa-users"></i> حضور الطلاب</a>
+            <a href="absensi-musammi.html"><i class="fas fa-user-graduate"></i> حضور المسمّعين</a>
+            <a href="laporan.html"><i class="fas fa-file-alt"></i> التقارير</a>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <header>
+            <div class="header-left">
+                <button class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>حضور الطلاب</h2>
+            </div>
+            <div class="header-right">
+                <span id="currentDate"></span>
+                <div class="user-profile">
+                    <img src="user.png" alt="User">
+                    <span>المشرف</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="content">
+            <div class="card">
+                <div class="card-header">
+                    <h3>تسجيل حضور الطلاب</h3>
+                </div>
+                <div class="card-body">
+                    <form id="santriForm" autocomplete="off">
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="attendanceDate">تاريخ الحضور:</label>
+                                <input type="date" id="attendanceDate" class="form-control" required>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="halaqahTime">وقت الحلقة:</label>
+                                <select id="halaqahTime" class="form-control" required>
+                                    <option value="subuh">بعد الفجر</option>
+                                    <option value="morning">الصباح (08:00)</option>
+                                    <option value="ashar">بعد العصر</option>
+                                    <option value="isha">بعد العشاء</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="studentClass">الصف:</label>
+                                <select id="studentClass" class="form-control" required>
+                                    <option value="">اختر الصف...</option>
+                                    <optgroup label="المتوسطة - الصف الأول">
+                                        <option value="mutawassitoh-1A">1A</option>
+                                        <option value="mutawassitoh-1B">1B</option>
+                                        <option value="mutawassitoh-1D">1D</option>
+                                    </optgroup>
+                                    <optgroup label="المتوسطة - الصف الثاني">
+                                        <option value="mutawassitoh-2A">2A</option>
+                                        <option value="mutawassitoh-2B">2B</option>
+                                    </optgroup>
+                                    <optgroup label="المتوسطة - الصف الثالث">
+                                        <option value="mutawassitoh-3A">3A</option>
+                                        <option value="mutawassitoh-3B">3B</option>
+                                        <option value="mutawassitoh-3C">3C</option>
+                                    </optgroup>
+                                    <optgroup label="العليا - الصف الأول">
+                                        <option value="aliyah-1A">1A</option>
+                                        <option value="aliyah-1B">1B</option>
+                                        <option value="aliyah-1C">1C</option>
+                                    </optgroup>
+                                    <optgroup label="العليا - الصف الثاني">
+                                        <option value="aliyah-2A">2A</option>
+                                        <option value="aliyah-2B">2B</option>
+                                    </optgroup>
+                                    <optgroup label="العليا - الصف الثالث">
+                                        <option value="aliyah-3A">3A</option>
+                                        <option value="aliyah-3B">3B</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div id="studentListContainer" style="display: none;">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="35%">اسم الطالب</th>
+                                        <th width="20%">الحالة</th>
+                                        <th width="40%">ملاحظات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentList">
+                                    <!-- Students will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <button id="submitAttendance" class="btn btn-success btn-lg">
+                            <i class="fas fa-save"></i> حفظ الحضور
+                        </button>
+                    </div>
+                    
+                    <div id="noClassSelected" class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> الرجاء اختيار الصف لعرض قائمة الطلاب
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script order: auth, utils, spreadsheet, santri -->
+    <script src="script.js"></script>
+    <script src="spreadsheet.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default date today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('attendanceDate').value = today;
+
+        const studentClassSelect = document.getElementById('studentClass');
+        const studentListContainer = document.getElementById('studentListContainer');
+        const noClassSelected = document.getElementById('noClassSelected');
+        const submitBtn = document.getElementById('submitAttendance');
+        const studentList = document.getElementById('studentList');
+        const halaqahTime = document.getElementById('halaqahTime');
+        const attendanceDate = document.getElementById('attendanceDate');
+
+        // Load students by class dynamically from backend
+        studentClassSelect.addEventListener('change', async function() {
+            const selectedClass = this.value;
+            studentList.innerHTML = '';
+            if (selectedClass) {
+                try {
+                    // Get students by class from backend
+                    const students = await getFromSheet('Santri', { class: selectedClass });
+                    if (students.length > 0) {
+                        let html = '';
+                        students.forEach((student, index) => {
+                            html += `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${student.Name || student.name}</td>
+                                    <td>
+                                        <select class="form-control status-select" data-id="${student.id || student.ID || index}">
+                                            <option value="hadir">حاضر</option>
+                                            <option value="alpa">غائب</option>
+                                            <option value="izin">إذن</option>
+                                            <option value="sakit">مريض</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control notes-input" data-id="${student.id || student.ID || index}" placeholder="ملاحظات...">
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        studentList.innerHTML = html;
+                        studentListContainer.style.display = 'block';
+                        noClassSelected.style.display = 'none';
+                    } else {
+                        studentListContainer.style.display = 'none';
+                        noClassSelected.style.display = 'block';
+                        noClassSelected.innerHTML = '<i class="fas fa-info-circle"></i> لا يوجد طلاب مسجلين في هذا الصف';
+                    }
+                } catch (e) {
+                    studentListContainer.style.display = 'none';
+                    noClassSelected.style.display = 'block';
+                    noClassSelected.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فشل في الاتصال بالخادم';
+                }
+            } else {
+                studentListContainer.style.display = 'none';
+                noClassSelected.style.display = 'block';
+                noClassSelected.innerHTML = '<i class="fas fa-info-circle"></i> الرجاء اختيار الصف لعرض قائمة الطلاب';
+            }
+        });
+
+        // Submit attendance
+        submitBtn.addEventListener('click', async function() {
+            const theDate = attendanceDate.value;
+            const theTime = halaqahTime.value;
+            const theClass = studentClassSelect.value;
+            if (!theDate) {
+                alert('الرجاء اختيار تاريخ الحضور');
+                attendanceDate.focus();
+                return;
+            }
+            if (!theClass) {
+                alert('الرجاء اختيار الصف');
+                studentClassSelect.focus();
+                return;
+            }
+            // Collect attendance data from form
+            const statusSelects = document.querySelectorAll('.status-select');
+            if (statusSelects.length === 0) {
+                alert('لا يوجد بيانات طلاب!');
+                return;
+            }
+            const attendanceData = [];
+            const now = new Date().toISOString();
+            statusSelects.forEach(select => {
+                const studentId = select.dataset.id;
+                const status = select.value;
+                const note = document.querySelector(`.notes-input[data-id="${studentId}"]`).value;
+                const name = select.closest('tr').querySelector('td:nth-child(2)').textContent;
+                attendanceData.push({
+                    timestamp: now,
+                    date: theDate,
+                    name: name,
+                    class: theClass,
+                    time: theTime,
+                    status: status,
+                    notes: note,
+                    type: 'student'
+                });
+            });
+
+            // Disable button to prevent double submit
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الحفظ...';
+
+            try {
+                const result = await sendToSheet(attendanceData, 'Santri');
+                if (result.success) {
+                    alert('تم حفظ بيانات الحضور بنجاح');
+                    // Reset form
+                    studentClassSelect.value = '';
+                    studentListContainer.style.display = 'none';
+                    noClassSelected.style.display = 'block';
+                    noClassSelected.innerHTML = '<i class="fas fa-info-circle"></i> الرجاء اختيار الصف لعرض قائمة الطلاب';
+                } else {
+                    throw new Error(result.message || 'Failed to save data');
+                }
+            } catch (error) {
+                alert('حدث خطأ أثناء حفظ البيانات. الرجاء المحاولة مرة أخرى.\n' + error.message);
+            }
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> حفظ الحضور';
+        });
+    });
+    </script>
+</body>
+</html>

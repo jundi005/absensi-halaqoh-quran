@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - نظام حضور حلقة القرآن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="logo.jpg" alt="Logo" class="sidebar-logo">
+            <h3>حلقة القرآن</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="active"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="absensi-santri.html"><i class="fas fa-users"></i> حضور الطلاب</a>
+            <a href="absensi-musammi.html"><i class="fas fa-user-graduate"></i> حضور المسمّعين</a>
+            <a href="laporan.html"><i class="fas fa-file-alt"></i> التقارير</a>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <header>
+            <div class="header-left">
+                <button class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>لوحة التحكم</h2>
+            </div>
+            <div class="header-right">
+                <span id="currentDate"></span>
+                <div class="user-profile">
+                    <img src="user.png" alt="User">
+                    <span>المشرف</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="content">
+            <div class="stats-cards">
+                <div class="stat-card bg-primary">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>إجمالي الطلاب</h3>
+                        <span id="totalStudents">-</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-success">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>الحضور اليوم</h3>
+                        <span id="todayPresent">-</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-warning">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>متأخرين اليوم</h3>
+                        <span id="todayLate">-</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card bg-danger">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-times"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>الغياب اليوم</h3>
+                        <span id="todayAbsent">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>إحصائيات الحضور الأسبوعية</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>نسبة الحضور اليوم</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="attendancePie"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3>آخر الحضور المسجل</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>التاريخ</th>
+                                    <th>الاسم</th>
+                                    <th>الصف</th>
+                                    <th>الوقت</th>
+                                    <th>الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentAttendance">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="script.js"></script>
+    <script src="spreadsheet.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Update statistics and recent attendance from backend
+        // 1. Fetch all students
+        // 2. Fetch today's attendance
+        // 3. Fetch weekly attendance
+        // 4. Fetch recent attendance
+
+        function formatStatusBadge(status) {
+            switch (status) {
+                case 'حاضر': case 'hadir':
+                    return '<span class="badge badge-success">حاضر</span>';
+                case 'غائب': case 'alpa':
+                    return '<span class="badge badge-danger">غائب</span>';
+                case 'إذن': case 'izin':
+                    return '<span class="badge badge-warning">إذن</span>';
+                case 'مريض': case 'sakit':
+                    return '<span class="badge badge-info">مريض</span>';
+                default:
+                    return `<span class="badge badge-secondary">${status || '-'}</span>`;
+            }
+        }
+
+        // Get all students
+        let students = [];
+        try {
+            students = await getFromSheet('Santri', {});
+            document.getElementById('totalStudents').textContent = students.length;
+        } catch {
+            document.getElementById('totalStudents').textContent = '-';
+        }
+
+        // Get today's attendance
+        const todayStr = new Date().toISOString().split('T')[0];
+        let todayAttendance = [];
+        try {
+            todayAttendance = await getFromSheet('Laporan', { startDate: todayStr, endDate: todayStr });
+            // Count hadir, alpa, izin, sakit
+            let hadir = 0, alpa = 0, izin = 0, sakit = 0, late = 0;
+            todayAttendance.forEach(item => {
+                switch (item.status) {
+                    case 'hadir': case 'حاضر': hadir++; break;
+                    case 'alpa': case 'غائب': alpa++; break;
+                    case 'izin': case 'إذن': izin++; break;
+                    case 'sakit': case 'مريض': sakit++; break;
+                    case 'late': case 'متأخر': late++; break;
+                }
+                // For late, if you have a field, please adjust accordingly.
+            });
+            document.getElementById('todayPresent').textContent = hadir;
+            document.getElementById('todayAbsent').textContent = alpa;
+            document.getElementById('todayLate').textContent = late; // Or, if late is not tracked, set to '-'
+        } catch {
+            document.getElementById('todayPresent').textContent = '-';
+            document.getElementById('todayAbsent').textContent = '-';
+            document.getElementById('todayLate').textContent = '-';
+        }
+
+        // Weekly attendance data for chart
+        let weeklyLabels = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+        let hadirData = [0,0,0,0,0,0,0];
+        let alpaData = [0,0,0,0,0,0,0];
+        let izinData = [0,0,0,0,0,0,0];
+        let sakitData = [0,0,0,0,0,0,0];
+        try {
+            // Get last 7 days' attendance
+            let now = new Date();
+            let weekAgo = new Date();
+            weekAgo.setDate(now.getDate() - 6);
+            let startDate = weekAgo.toISOString().split('T')[0];
+            let endDate = now.toISOString().split('T')[0];
+            let weeklyAttendance = await getFromSheet('Laporan', { startDate, endDate });
+            // Group by day
+            weeklyAttendance.forEach(item => {
+                let dateObj = new Date(item.date);
+                let day = dateObj.getDay(); // 0 = Sunday, 6 = Saturday
+                let idx = day;
+                switch (item.status) {
+                    case 'hadir': case 'حاضر': hadirData[idx]++; break;
+                    case 'alpa': case 'غائب': alpaData[idx]++; break;
+                    case 'izin': case 'إذن': izinData[idx]++; break;
+                    case 'sakit': case 'مريض': sakitData[idx]++; break;
+                }
+            });
+        } catch {}
+        // Render weekly bar chart
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: weeklyLabels,
+                datasets: [
+                    {
+                        label: 'حاضر',
+                        data: hadirData,
+                        backgroundColor: '#28a745'
+                    },
+                    {
+                        label: 'غائب',
+                        data: alpaData,
+                        backgroundColor: '#dc3545'
+                    },
+                    {
+                        label: 'إذن',
+                        data: izinData,
+                        backgroundColor: '#ffc107'
+                    },
+                    {
+                        label: 'مريض',
+                        data: sakitData,
+                        backgroundColor: '#17a2b8'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        rtl: true
+                    }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true }
+                }
+            }
+        });
+
+        // Pie chart for today's attendance
+        let hadirPie = 0, alpaPie = 0, izinPie = 0, sakitPie = 0;
+        todayAttendance.forEach(item => {
+            switch (item.status) {
+                case 'hadir': case 'حاضر': hadirPie++; break;
+                case 'alpa': case 'غائب': alpaPie++; break;
+                case 'izin': case 'إذن': izinPie++; break;
+                case 'sakit': case 'مريض': sakitPie++; break;
+            }
+        });
+        const ctxPie = document.getElementById('attendancePie').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: ['حاضر', 'غائب', 'إذن', 'مريض'],
+                datasets: [{
+                    data: [hadirPie, alpaPie, izinPie, sakitPie],
+                    backgroundColor: [
+                        '#28a745',
+                        '#dc3545',
+                        '#ffc107',
+                        '#17a2b8'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        rtl: true
+                    }
+                }
+            }
+        });
+
+        // Recent attendance (last 5 entries)
+        try {
+            let laporanAll = await getFromSheet('Laporan', {});
+            laporanAll.sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date));
+            let recentData = laporanAll.slice(0, 5);
+            const recentTable = document.getElementById('recentAttendance');
+            recentTable.innerHTML = '';
+            recentData.forEach(item => {
+                let statusBadge = formatStatusBadge(item.status);
+                let row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.date || '-'}</td>
+                    <td>${item.name || '-'}</td>
+                    <td>${item.class || item['class/type'] || item.type || '-'}</td>
+                    <td>${item.time || '-'}</td>
+                    <td>${statusBadge}</td>
+                `;
+                recentTable.appendChild(row);
+            });
+        } catch {
+            document.getElementById('recentAttendance').innerHTML = `<tr><td colspan="5">فشل في تحميل البيانات</td></tr>`;
+        }
+    });
+    </script>
+</body>
+</html>

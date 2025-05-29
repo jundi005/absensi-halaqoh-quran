@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التقارير - نظام حضور حلقة القرآن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="images/logo.jpg" alt="Logo" class="sidebar-logo">
+            <h3>حلقة القرآن</h3>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="absensi-santri.html"><i class="fas fa-users"></i> حضور الطلاب</a>
+            <a href="absensi-musammi.html"><i class="fas fa-user-graduate"></i> حضور المسمّعين</a>
+            <a href="laporan.html" class="active"><i class="fas fa-file-alt"></i> التقارير</a>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+        </nav>
+    </div>
+    
+    <div class="main-content">
+        <header>
+            <div class="header-left">
+                <button class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>التقارير</h2>
+            </div>
+            <div class="header-right">
+                <span id="currentDate"></span>
+                <div class="user-profile">
+                    <img src="images/user.png" alt="User">
+                    <span>المشرف</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="content">
+            <div class="card">
+                <div class="card-header">
+                    <h3>تقارير الحضور</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="reportType">نوع التقرير:</label>
+                            <select id="reportType" class="form-control">
+                                <option value="all">كل الحضور</option>
+                                <option value="students">طلاب فقط</option>
+                                <option value="musammi">مسمّعين فقط</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group col-md-3">
+                            <label for="startDate">من تاريخ:</label>
+                            <input type="date" id="startDate" class="form-control">
+                        </div>
+                        
+                        <div class="form-group col-md-3">
+                            <label for="endDate">إلى تاريخ:</label>
+                            <input type="date" id="endDate" class="form-control">
+                        </div>
+                        
+                        <div class="form-group col-md-3">
+                            <label for="filterClass">الصف:</label>
+                            <select id="filterClass" class="form-control">
+                                <option value="">كل الصفوف</option>
+                                <optgroup label="المتوسطة - الصف الأول">
+                                    <option value="mutawassitoh-1A">1A</option>
+                                    <option value="mutawassitoh-1B">1B</option>
+                                    <option value="mutawassitoh-1D">1D</option>
+                                </optgroup>
+                                <optgroup label="المتوسطة - الصف الثاني">
+                                    <option value="mutawassitoh-2A">2A</option>
+                                    <option value="mutawassitoh-2B">2B</option>
+                                </optgroup>
+                                <optgroup label="المتوسطة - الصف الثالث">
+                                    <option value="mutawassitoh-3A">3A</option>
+                                    <option value="mutawassitoh-3B">3B</option>
+                                    <option value="mutawassitoh-3C">3C</option>
+                                </optgroup>
+                                <optgroup label="العليا - الصف الأول">
+                                    <option value="aliyah-1A">1A</option>
+                                    <option value="aliyah-1B">1B</option>
+                                    <option value="aliyah-1C">1C</option>
+                                </optgroup>
+                                <optgroup label="العليا - الصف الثاني">
+                                    <option value="aliyah-2A">2A</option>
+                                    <option value="aliyah-2B">2B</option>
+                                </optgroup>
+                                <optgroup label="العليا - الصف الثالث">
+                                    <option value="aliyah-3A">3A</option>
+                                    <option value="aliyah-3B">3B</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <label for="filterTime">وقت الحلقة:</label>
+                            <select id="filterTime" class="form-control">
+                                <option value="">كل الأوقات</option>
+                                <option value="subuh">بعد الفجر</option>
+                                <option value="morning">الصباح (08:00)</option>
+                                <option value="ashar">بعد العصر</option>
+                                <option value="isha">بعد العشاء</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group col-md-3">
+                            <label for="filterStatus">الحالة:</label>
+                            <select id="filterStatus" class="form-control">
+                                <option value="">كل الحالات</option>
+                                <option value="hadir">حاضر</option>
+                                <option value="alpa">غائب</option>
+                                <option value="izin">إذن</option>
+                                <option value="sakit">مريض</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group col-md-6" style="display: flex; align-items: flex-end;">
+                            <button id="filterBtn" class="btn btn-primary">
+                                <i class="fas fa-filter"></i> تصفية
+                            </button>
+                            <button id="exportBtn" class="btn btn-success" style="margin-right: 10px;">
+                                <i class="fas fa-file-excel"></i> تصدير إلى Excel
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table id="reportTable" class="table table-striped" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>التاريخ</th>
+                                    <th>الاسم</th>
+                                    <th>الصف/النوع</th>
+                                    <th>وقت الحلقة</th>
+                                    <th>الحالة</th>
+                                    <th>ملاحظات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="js/script.js"></script>
+<script src="js/spreadsheet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Initialize DataTable
+const reportTable = $('#reportTable').DataTable({
+    language: {
+        url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/ar.json'
+    },
+    responsive: true,
+    order: [[0, 'desc']]
+});
+
+function formatStatusBadge(status) {
+    switch (status) {
+        case 'hadir': case 'حاضر':
+            return '<span class="badge badge-success">حاضر</span>';
+        case 'alpa': case 'غائب':
+            return '<span class="badge badge-danger">غائب</span>';
+        case 'izin': case 'إذن':
+            return '<span class="badge badge-warning">إذن</span>';
+        case 'sakit': case 'مريض':
+            return '<span class="badge badge-info">مريض</span>';
+        default:
+            return `<span class="badge badge-secondary">${status || '-'}</span>`;
+    }
+}
+
+// Filter button
+document.getElementById('filterBtn').addEventListener('click', async function() {
+    const reportType = document.getElementById('reportType').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    const filterClass = document.getElementById('filterClass').value;
+    const filterTime = document.getElementById('filterTime').value;
+    const filterStatus = document.getElementById('filterStatus').value;
+
+    try {
+        const filters = {
+            type: reportType === 'all' ? '' : reportType,
+            startDate,
+            endDate,
+            class: filterClass,
+            time: filterTime,
+            status: filterStatus
+        };
+        // Ambil data dari Google Sheet
+        const data = await getFromSheet('Laporan', filters);
+        reportTable.clear();
+        data.forEach(item => {
+            let statusBadge = formatStatusBadge(item.status);
+            reportTable.row.add([
+                item.date || '-',
+                item.name || '-',
+                item.class || item.type || '-',
+                item.time || '-',
+                statusBadge,
+                item.notes || ''
+            ]);
+        });
+        reportTable.draw();
+    } catch (error) {
+        alert('حدث خطأ أثناء جلب البيانات. الرجاء المحاولة مرة أخرى.');
+    }
+});
+
+// Export to Excel (dummy, implement per kebutuhan)
+document.getElementById('exportBtn').addEventListener('click', function() {
+    alert('سيتم تصدير البيانات إلى ملف Excel');
+});
+
+// Set default date range (last 7 days)
+const endDate = new Date();
+const startDate = new Date();
+startDate.setDate(endDate.getDate() - 7);
+document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+
+// Trigger initial filter to fill table on load
+document.getElementById('filterBtn').click();
+});
+</script>
+</body>
+</html>
