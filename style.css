@@ -1,3 +1,122 @@
+/* CSS Dasar */
+        body, html {
+            font-family: 'Tajawal', Arial, sans-serif;
+            background: #f5f6fa;
+            margin: 0;
+            padding: 0;
+            direction: rtl;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #dcdde1;
+            border-radius: 6px;
+            font-size: 1em;
+            margin-top: 3px;
+            box-sizing: border-box;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            background: #273c75;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.18s;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-primary {
+            background: #273c75;
+        }
+        
+        .btn-lg {
+            font-size: 1.15em;
+            padding: 14px 0;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th, .table td {
+            padding: 10px 7px;
+            border: 1px solid #e1e1e1;
+            text-align: right;
+        }
+        
+        .table th {
+            background: #273c75;
+            color: white;
+        }
+        
+        .alert {
+            padding: 10px 15px;
+            border-radius: 6px;
+            background: #f1f2f6;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+        
+        .form-group {
+            flex: 1 1 180px;
+            min-width: 120px;
+        }
+        
+        /* Layout */
+        .main-content {
+            padding: 20px;
+        }
+        
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 16px rgba(39,60,117,0.07);
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background: #f7f8fa;
+            border-bottom: 1px solid #e1e1e1;
+            padding: 18px 24px;
+            font-size: 1.12em;
+            color: #273c75;
+        }
+        
+        .card-body {
+            padding: 24px;
+        }
+        
+        /* Tabel Halaqoh */
+        .musammi-row {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .santri-row {
+            background-color: white;
+        }
+        
+        .status-select {
+            min-width: 120px;
+        }
 /* Font and Body */
 body, html {
     font-family: 'Tajawal', Arial, sans-serif;
@@ -434,3 +553,30 @@ header {
 ::-moz-placeholder { color: #aaa; }
 :-ms-input-placeholder { color: #aaa; }
 ::placeholder { color: #aaa; }
+
+/* Halaqah Table Styles */
+#halaqahTable {
+    margin-top: 20px;
+}
+
+#halaqahTable th {
+    background-color: #273c75;
+    color: white;
+}
+
+.musammi-row {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.santri-row {
+    background-color: white;
+}
+
+.musammi-row td, .santri-row td {
+    vertical-align: middle;
+}
+
+.status-select {
+    min-width: 120px;
+}
