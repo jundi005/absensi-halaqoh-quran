@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Konfigurasi Google Apps Script
-const scriptURL = 'https://script.google.com/macros/s/AKfycbyULnd4BxOxHXWPNPB9POT5tAw0kpVPnEQJG8eujGH-FR5b4rzAQcWCjc9JRnjkKG8i/exec'; // GANTI dengan URL Apps Script Anda
+const scriptURL = 'https://script.google.com/macros/s/AKfycbx-mgcWKMaLE7i_vPvF8gDkEoqgUAJT1_I4co3hLM2m8a53FmTBlh8vXQGSgJlVyibG/exec'; // GANTI dengan URL Apps Script Anda
 
 // Fungsi untuk mengirim data ke Google Sheet
 async function sendToSheet(data, sheetName) {
@@ -123,6 +123,62 @@ async function getFromSheet(sheetName, filters = {}) {
         throw error;
     }
 }
+async function saveHalaqohAttendance(data) {
+  try {
+    const response = await fetch(scriptURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sheet: "Absensi_perhalaqoh",
+        data: data
+      })
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("Gagal menyimpan absensi:", error);
+    throw error;
+  }
+}
+
+function getHalaqohData(filters) {
+  const { marhalah, tipe, waktu } = filters;
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName(SHEET_NAMES.DATA_HALAQOH);
+  
+  if (!sheet) throw new Error("Sheet Data_Halaqoh tidak ditemukan");
+  
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0].map(h => h.toString().trim().toLowerCase());
+  
+  // Filter data
+  const filteredData = data.slice(1).filter(row => {
+    return (
+      (!marhalah || row[headers.indexOf('marhalah')] === marhalah) &&
+      (!tipe || row[headers.indexOf('tipe')] === tipe) &&
+      (!waktu || row[headers.indexOf('waktu')] === waktu)
+    );
+  });
+  
+  // Format khusus untuk frontend Absensi Halaqoh
+  const result = {};
+  filteredData.forEach(row => {
+    const noUrut = row[headers.indexOf('nourut')];
+    if (!result[noUrut]) {
+      result[noUrut] = {
+        noUrut: noUrut,
+        musammi: row[headers.indexOf('namamusammi')],
+        santri: []
+      };
+    }
+    result[noUrut].santri.push({
+      nama: row[headers.indexOf('namasantri')],
+      kelas: row[headers.indexOf('kelas')]
+    });
+  });
+  
+  return Object.values(result);
+}
+
 /**
  * Kirim data ke Google Sheet melalui Apps Script.
  * @param {Array|Object} data - Data yang akan dikirim (array of object atau object tunggal).
