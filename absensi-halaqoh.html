@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حضور الحلقة - نظام حضور حلقة القرآن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="logo.jpg" alt="Logo" class="sidebar-logo">
+            <h3>حلقة القرآن</h3>
+        </div>
+        <nav class="sidebar-nav">
+    <a href="dashboard.html"><i class="fas fa-home"></i> الرئيسية</a>
+    <a href="absensi-santri.html"><i class="fas fa-users"></i> حضور الطلاب</a>
+    <a href="absensi-musammi.html"><i class="fas fa-user-graduate"></i> حضور المسمّعين</a>
+    <a href="absensi-halaqoh.html"><i class="fas fa-mosque"></i> حضور الحلقة</a>
+    <a href="laporan.html"><i class="fas fa-file-alt"></i> التقارير</a>
+    <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+</nav>
+        <!-- Sidebar sama seperti halaman lainnya -->
+    </div>
+
+    <div class="main-content">
+        <header>
+            <div class="header-left">
+                <button class="toggle-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>حضور الحلقة</h2>
+            </div>
+            <div class="header-right">
+                <span id="currentDate"></span>
+                <div class="user-profile">
+                    <img src="user.png" alt="User">
+                    <span>المشرف</span>
+                </div>
+            </div>
+            
+        </header>
+        
+        <div class="content">
+            <div class="card">
+                <div class="card-header">
+                    <h3>تسجيل حضور الحلقة</h3>
+                </div>
+                <div class="card-body">
+                    <form id="halaqahForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="attendanceDate">تاريخ الحضور:</label>
+                                <input type="date" id="attendanceDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="marhalah">المرحلة:</label>
+                                <select id="marhalah" class="form-control" required>
+                                    <option value="">اختر المرحلة...</option>
+                                    <option value="mutawassitoh">المتوسطة</option>
+                                    <option value="aliyah">العليا</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="tipeHalaqahContainer" style="display:none;">
+                                <label for="tipeHalaqah">نوع الحلقة:</label>
+                                <select id="tipeHalaqah" class="form-control">
+                                    <option value="harian">الحلقة اليومية</option>
+                                    <option value="jam8">الحلقة الساعة 8</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row" id="waktuContainer" style="display:none;">
+                            <div class="form-group">
+                                <label for="waktuHalaqah">وقت الحلقة:</label>
+                                <select id="waktuHalaqah" class="form-control" required>
+                                    <!-- Opsi akan diisi oleh JavaScript -->
+                                </select>
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: flex-end;">
+                                <button type="button" id="loadHalaqahBtn" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> عرض الحلقات
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div id="halaqahListContainer" style="display: none; margin-top: 20px;">
+                        <div style="overflow-x: auto;">
+                            <table class="table" id="halaqahTable">
+                                <thead>
+                                    <tr>
+                                        <th width="8%">رقم الحلقة</th>
+                                        <th width="25%">المسمّع</th>
+                                        <th width="25%">الطالب</th>
+                                        <th width="15%">الصف</th>
+                                        <th width="27%">الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="halaqahList">
+                                    <!-- Data halaqah akan dimuat di sini -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <button id="submitHalaqahAttendance" class="btn btn-success btn-lg" style="margin-top: 20px;">
+                            <i class="fas fa-save"></i> حفظ الحضور
+                        </button>
+                    </div>
+                    
+                    <div id="noDataMessage" class="alert" style="display: none;">
+                        <i class="fas fa-info-circle"></i> لا توجد حلقة مسجلة لهذه المعايير
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Konfigurasi Apps Script
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbx-mgcWKMaLE7i_vPvF8gDkEoqgUAJT1_I4co3hLM2m8a53FmTBlh8vXQGSgJlVyibG/exec'; // Ganti dengan URL deployment GAS Anda
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set tanggal default hari ini
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('attendanceDate').value = today;
+
+        const marhalahSelect = document.getElementById('marhalah');
+        const tipeHalaqahContainer = document.getElementById('tipeHalaqahContainer');
+        const waktuContainer = document.getElementById('waktuContainer');
+        const waktuHalaqah = document.getElementById('waktuHalaqah');
+        const loadHalaqahBtn = document.getElementById('loadHalaqahBtn');
+        const halaqahListContainer = document.getElementById('halaqahListContainer');
+        const halaqahList = document.getElementById('halaqahList');
+        const noDataMessage = document.getElementById('noDataMessage');
+
+        // Waktu untuk masing-masing tipe halaqah
+        const waktuOptions = {
+            harian: ['bada shubuh', 'bada ashar', 'bada isya'],
+            jam8: ['jam 08:00']
+        };
+
+        // Fungsi untuk terjemahkan waktu ke Arab
+        function translateWaktu(waktu) {
+            const translations = {
+                'bada shubuh': 'بعد الفجر',
+                'bada ashar': 'بعد العصر',
+                'bada isya': 'بعد العشاء',
+                'jam 08:00': '08:00 صباحاً'
+            };
+            return translations[waktu] || waktu;
+        }
+
+        // Ketika marhalah berubah
+        marhalahSelect.addEventListener('change', function() {
+            const selectedMarhalah = this.value;
+            
+            if (selectedMarhalah === 'mutawassitoh') {
+                tipeHalaqahContainer.style.display = 'block';
+                waktuContainer.style.display = 'flex';
+            } else if (selectedMarhalah === 'aliyah') {
+                tipeHalaqahContainer.style.display = 'none';
+                updateWaktuOptions('harian');
+                waktuContainer.style.display = 'flex';
+            } else {
+                tipeHalaqahContainer.style.display = 'none';
+                waktuContainer.style.display = 'none';
+                halaqahListContainer.style.display = 'none';
+                noDataMessage.style.display = 'none';
+            }
+        });
+
+        // Ketika tipe halaqah berubah (hanya untuk mutawassitoh)
+        document.getElementById('tipeHalaqah').addEventListener('change', function() {
+            updateWaktuOptions(this.value);
+        });
+
+        function updateWaktuOptions(tipe) {
+            waktuHalaqah.innerHTML = '';
+            waktuOptions[tipe].forEach(waktu => {
+                const option = document.createElement('option');
+                option.value = waktu;
+                option.textContent = translateWaktu(waktu);
+                waktuHalaqah.appendChild(option);
+            });
+        }
+
+        // Fungsi untuk mengambil data dari Google Sheets
+        async function getHalaqohData(filters) {
+            try {
+                const queryParams = new URLSearchParams();
+                queryParams.append('sheet', 'Data_Halaqoh');
+                for (const [key, value] of Object.entries(filters)) {
+                    if (value) queryParams.append(key, value);
+                }
+                console.log('scriptURL:', scriptURL);
+                console.log('Memulai fetch dengan URL:', `${scriptURL}?${queryParams.toString()}`); // <-- TAMBAHKAN INI
+                const response = await fetch(`${scriptURL}?${queryParams.toString()}`);
+                if (!response.ok) {
+                    throw new Error('فشل في جلب البيانات من الخادم');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                throw error;
+            }
+        }
+
+        // Fungsi untuk menyimpan data ke Google Sheets
+        async function saveAttendanceData(data) {
+            try {
+                const response = await fetch(scriptURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sheet: 'Absensi_perhalaqoh',
+                        data: data
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('فشل في حفظ البيانات');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error saving data:', error);
+                throw error;
+            }
+        }
+
+        // Tombol untuk memuat data halaqah
+        loadHalaqahBtn.addEventListener('click', async function() {
+            const marhalah = marhalahSelect.value;
+            const tipe = marhalah === 'mutawassitoh' ? document.getElementById('tipeHalaqah').value : 'harian';
+            const waktu = waktuHalaqah.value;
+            
+            if (!marhalah || !waktu) {
+                alert('الرجاء اختيار جميع الحقول المطلوبة');
+                return;
+            }
+
+            loadHalaqahBtn.disabled = true;
+            loadHalaqahBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ التحميل...';
+
+            try {
+                const halaqahData = await getHalaqohData({
+                    marhalah: marhalah,
+                    tipe: tipe,
+                    waktu: waktu
+                });
+                
+                if (halaqahData.length > 0) {
+                    renderHalaqahList(halaqahData);
+                    halaqahListContainer.style.display = 'block';
+                    noDataMessage.style.display = 'none';
+                } else {
+                    halaqahListContainer.style.display = 'none';
+                    noDataMessage.style.display = 'flex';
+                }
+            } catch (error) {
+                alert('حدث خطأ أثناء جلب بيانات الحلقة: ' + error.message);
+            } finally {
+                loadHalaqahBtn.disabled = false;
+                loadHalaqahBtn.innerHTML = '<i class="fas fa-search"></i> عرض الحلقات';
+            }
+        });
+
+        function renderHalaqahList(data) {
+            halaqahList.innerHTML = '';
+            
+            // Kelompokkan data berdasarkan no urut halaqah
+            const groupedData = data.reduce((acc, item) => {
+                if (!acc[item.noUrut]) {
+                    acc[item.noUrut] = {
+                        noUrut: item.noUrut,
+                        musammi: item.musammi,
+                        santri: []
+                    };
+                }
+                acc[item.noUrut].santri.push(...item.santri);
+                return acc;
+            }, {});
+            
+            // Render tabel
+            Object.values(groupedData).forEach(group => {
+                // Baris untuk musammi
+                const musammiRow = document.createElement('tr');
+                musammiRow.className = 'musammi-row';
+                musammiRow.innerHTML = `
+                    <td rowspan="${group.santri.length + 1}">${group.noUrut}</td>
+                    <td>${group.musammi}</td>
+                    <td colspan="2">-</td>
+                    <td>
+                        <select class="form-control status-select" data-type="musammi" data-id="${group.noUrut}">
+                            <option value="hadir">حاضر</option>
+                            <option value="izin">إذن</option>
+                            <option value="sakit">مريض</option>
+                            <option value="alpa">غائب</option>
+                            <option value="terlambat">متأخر</option>
+                        </select>
+                    </td>
+                `;
+                halaqahList.appendChild(musammiRow);
+                
+                // Baris untuk setiap santri
+                group.santri.forEach((santri, index) => {
+                    const santriRow = document.createElement('tr');
+                    santriRow.className = 'santri-row';
+                    santriRow.innerHTML = `
+                        <td>${santri.nama}</td>
+                        <td>${santri.kelas}</td>
+                        <td>
+                            <select class="form-control status-select" data-type="santri" data-id="${group.noUrut}-${index}">
+                                <option value="hadir">حاضر</option>
+                                <option value="izin">إذن</option>
+                                <option value="sakit">مريض</option>
+                                <option value="alpa">غائب</option>
+                                <option value="terlambat">متأخر</option>
+                            </select>
+                        </td>
+                    `;
+                    halaqahList.appendChild(santriRow);
+                });
+            });
+        }
+
+        // Tombol submit absensi
+        document.getElementById('submitHalaqahAttendance').addEventListener('click', async function() {
+            const date = document.getElementById('attendanceDate').value;
+            const marhalah = marhalahSelect.value;
+            const tipe = marhalah === 'mutawassitoh' ? document.getElementById('tipeHalaqah').value : 'harian';
+            const waktu = waktuHalaqah.value;
+            
+            if (!date || !marhalah || !waktu) {
+                alert('الرجاء إكمال جميع الحقول المطلوبة');
+                return;
+            }
+            
+            const statusSelects = document.querySelectorAll('.status-select');
+            if (statusSelects.length === 0) {
+                alert('لا توجد بيانات حضور لحفظها');
+                return;
+            }
+            
+            const attendanceData = [];
+            const now = new Date().toISOString();
+            
+            // Kumpulkan data musammi
+            document.querySelectorAll('.status-select[data-type="musammi"]').forEach(select => {
+                const noUrut = select.dataset.id;
+                const status = select.value;
+                const namaMusammi = select.closest('tr').querySelector('td:nth-child(2)').textContent;
+                
+                attendanceData.push({
+                    timestamp: now,
+                    date: date,
+                    marhalah: marhalah,
+                    tipeHalaqah: tipe,
+                    waktu: waktu,
+                    noUrut: noUrut,
+                    nama: namaMusammi,
+                    jenis: 'musammi',
+                    status: status,
+                    notes: ''
+                });
+            });
+            
+            // Kumpulkan data santri
+            document.querySelectorAll('.status-select[data-type="santri"]').forEach(select => {
+                const [noUrut] = select.dataset.id.split('-');
+                const status = select.value;
+                const row = select.closest('tr');
+                const namaSantri = row.querySelector('td:nth-child(1)').textContent;
+                const kelas = row.querySelector('td:nth-child(2)').textContent;
+                
+                attendanceData.push({
+                    timestamp: now,
+                    date: date,
+                    marhalah: marhalah,
+                    tipeHalaqah: tipe,
+                    waktu: waktu,
+                    noUrut: noUrut,
+                    nama: namaSantri,
+                    kelas: kelas,
+                    jenis: 'santri',
+                    status: status,
+                    notes: ''
+                });
+            });
+            
+            // Kirim data ke Google Sheet
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الحفظ...';
+            
+            try {
+                const result = await saveAttendanceData(attendanceData);
+                if (result.success) {
+                    alert('تم حفظ بيانات الحضور بنجاح');
+                    // Reset form
+                    halaqahListContainer.style.display = 'none';
+                } else {
+                    throw new Error(result.message || 'فشل في حفظ البيانات');
+                }
+            } catch (error) {
+                alert('حدث خطأ أثناء حفظ البيانات: ' + error.message);
+            } finally {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-save"></i> حفظ الحضور';
+            }
+        });
+    });
+    </script>
+</body>
+</html>
