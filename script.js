@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Konfigurasi Google Apps Script
-const scriptURL = 'https://script.google.com/macros/s/AKfycbx-mgcWKMaLE7i_vPvF8gDkEoqgUAJT1_I4co3hLM2m8a53FmTBlh8vXQGSgJlVyibG/exec'; // GANTI dengan URL Apps Script Anda
+const scriptURL = 'https://script.google.com/macros/s/AKfycbyHfsNyGn3g2PnQRdYpknzUup2N53JImcqIIyVNgB3L78hffhtyjxiMFFPT587kSNJD/exec'; // GANTI dengan URL Apps Script Anda
 
 // Fungsi untuk mengirim data ke Google Sheet
 async function sendToSheet(data, sheetName) {
