@@ -274,14 +274,14 @@
             
             // Kelompokkan data berdasarkan no urut halaqah
             const groupedData = data.reduce((acc, item) => {
-                if (!acc[item.noUrut]) {
-                    acc[item.noUrut] = {
-                        noUrut: item.noUrut,
+                if (!acc[item.NoUrut]) {
+                    acc[item.NoUrut] = {
+                        NoUrut: item.NoUrut,
                         musammi: item.musammi,
                         santri: []
                     };
                 }
-                acc[item.noUrut].NamaSantri.push(...item.NamaSantri);
+                acc[item.NoUrut].NamaSantri.push(...item.NamaSantri);
                 return acc;
             }, {});
             
@@ -291,11 +291,11 @@
                 const musammiRow = document.createElement('tr');
                 musammiRow.className = 'musammi-row';
                 musammiRow.innerHTML = `
-                    <td rowspan="${group.santri.length + 1}">${group.noUrut}</td>
+                    <td rowspan="${group.santri.length + 1}">${group.NoUrut}</td>
                     <td>${group.musammi}</td>
                     <td colspan="2">-</td>
                     <td>
-                        <select class="form-control status-select" data-type="musammi" data-id="${group.noUrut}">
+                        <select class="form-control status-select" data-type="musammi" data-id="${group.NoUrut}">
                             <option value="hadir">حاضر</option>
                             <option value="izin">إذن</option>
                             <option value="sakit">مريض</option>
@@ -314,7 +314,7 @@
                         <td>${santri.nama}</td>
                         <td>${santri.kelas}</td>
                         <td>
-                            <select class="form-control status-select" data-type="santri" data-id="${group.noUrut}-${index}">
+                            <select class="form-control status-select" data-type="santri" data-id="${group.NoUrut}-${index}">
                                 <option value="hadir">حاضر</option>
                                 <option value="izin">إذن</option>
                                 <option value="sakit">مريض</option>
@@ -351,17 +351,17 @@
             
             // Kumpulkan data musammi
             document.querySelectorAll('.status-select[data-type="musammi"]').forEach(select => {
-                const noUrut = select.dataset.id;
+                const NoUrut = select.dataset.id;
                 const status = select.value;
                 const namaMusammi = select.closest('tr').querySelector('td:nth-child(2)').textContent;
                 
                 attendanceData.push({
                     timestamp: now,
                     date: date,
-                    marhalah: marhalah,
-                    tipeHalaqah: tipe,
+                    marhalah: Marhalah,
+                    tipeHalaqah: TipeHalaqah,
                     waktu: waktu,
-                    noUrut: noUrut,
+                    NoUrut: NoUrut,
                     nama: namaMusammi,
                     jenis: 'musammi',
                     status: status,
@@ -371,7 +371,7 @@
             
             // Kumpulkan data santri
             document.querySelectorAll('.status-select[data-type="santri"]').forEach(select => {
-                const [noUrut] = select.dataset.id.split('-');
+                const [NoUrut] = select.dataset.id.split('-');
                 const status = select.value;
                 const row = select.closest('tr');
                 const namaSantri = row.querySelector('td:nth-child(1)').textContent;
@@ -380,10 +380,10 @@
                 attendanceData.push({
                     timestamp: now,
                     date: date,
-                    marhalah: marhalah,
-                    tipeHalaqah: tipe,
-                    waktu: waktu,
-                    noUrut: noUrut,
+                    marhalah: Marhalah,
+                    tipeHalaqah: TipeHalaqah,
+                    waktu: Waktu,
+                    NoUrut: NoUrut,
                     nama: namaSantri,
                     kelas: kelas,
                     jenis: 'santri',
@@ -416,5 +416,6 @@
     </script>
 </body>
 </html>
+
 
 
