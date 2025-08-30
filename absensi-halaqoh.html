@@ -405,7 +405,7 @@
 
     <script>
     // Konfigurasi Apps Script
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyHfsNyGn3g2PnQRdYpknzUup2N53JImcqIIyVNgB3L78hffhtyjxiMFFPT587kSNJD/exec"; // Ganti dengan URL deployment GAS Anda
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyHfsNyGn3g2PnQRdYpknzUup2N53JImcqIIyVNgB3L78hffhtyjxiMFFPT587kSNJD/exec";
     
     document.addEventListener('DOMContentLoaded', function() {
         // Set tanggal default hari ini
@@ -484,22 +484,22 @@
         async function getHalaqohData(filters) {
             try {
                 const queryParams = new URLSearchParams();
-                queryParams.append('sheet', 'AbsensiHalaqoh'); // Sesuai dengan doGet di GAS
+                queryParams.append('sheet', 'AbsensiHalaqoh');
                 
                 // Sesuaikan parameter dengan yang diharapkan GAS
                 if (filters.marhalah) queryParams.append('marhalah', filters.marhalah);
-                if (filters.tipe) queryParams.append('tipe', filters.tipe); // Perhatikan: 'tipe' bukan 'tipeHalaqah'
+                if (filters.tipe) queryParams.append('tipe', filters.tipe);
                 if (filters.waktu) queryParams.append('waktu', filters.waktu);
                 
-                console.log('Mengambil data dengan parameter:', filters);
+                console.log('Mengambil data dengan parameter:', Object.fromEntries(queryParams));
                 const response = await fetch(`${scriptURL}?${queryParams.toString()}`);
                 
                 if (!response.ok) {
-                    throw new Error('فشل في جلب البيانات من الخادم');
+                    throw new Error('فشل في جلب البيانات من الخادم: ' + response.status);
                 }
                 
                 const data = await response.json();
-                console.log('Data diterima:', data);
+                console.log('Data diterima dari server:', data);
                 return data;
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -546,13 +546,13 @@
             try {
                 const halaqahData = await getHalaqohData({
                     marhalah: marhalah,
-                    tipe: tipe, // Menggunakan 'tipe' bukan 'tipeHalaqah'
+                    tipe: tipe,
                     waktu: waktu
                 });
                 
-                console.log('Data halaqah:', halaqahData);
+                console.log('Data halaqah yang diterima:', halaqahData);
                 
-                if (halaqahData.length > 0) {
+                if (halaqahData && halaqahData.length > 0) {
                     renderHalaqahList(halaqahData);
                     halaqahListContainer.style.display = 'block';
                     noDataMessage.style.display = 'none';
@@ -575,12 +575,29 @@
         function renderHalaqahList(data) {
             halaqahList.innerHTML = '';
             
+            // Pastikan data adalah array
+            if (!Array.isArray(data)) {
+                console.error('Data yang diterima bukan array:', data);
+                noDataMessage.style.display = 'flex';
+                noDataMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> تنسيق البيانات غير صحيح';
+                return;
+            }
+            
             data.forEach(group => {
+                // Pastikan group memiliki properti yang diperlukan
+                if (!group || !group.noUrut || !group.musammi || !group.santri) {
+                    console.error('Struktur group tidak valid:', group);
+                    return;
+                }
+                
+                // Pastikan santri adalah array
+                const santriList = Array.isArray(group.santri) ? group.santri : [];
+                
                 // Baris untuk musammi
                 const musammiRow = document.createElement('tr');
                 musammiRow.className = 'musammi-row';
                 musammiRow.innerHTML = `
-                    <td rowspan="${group.santri.length + 1}">${group.noUrut}</td>
+                    <td rowspan="${santriList.length + 1}">${group.noUrut}</td>
                     <td>${group.musammi}</td>
                     <td colspan="2">-</td>
                     <td>
@@ -596,12 +613,16 @@
                 halaqahList.appendChild(musammiRow);
                 
                 // Baris untuk setiap santri
-                group.santri.forEach((santri, index) => {
+                santriList.forEach((santri, index) => {
+                    // Pastikan santri adalah objek dengan properti nama dan kelas
+                    const santriName = santri && santri.nama ? santri.nama : 'غير معروف';
+                    const santriClass = santri && santri.kelas ? santri.kelas : 'غير معروف';
+                    
                     const santriRow = document.createElement('tr');
                     santriRow.className = 'santri-row';
                     santriRow.innerHTML = `
-                        <td>${santri.nama}</td>
-                        <td>${santri.kelas}</td>
+                        <td>${santriName}</td>
+                        <td>${santriClass}</td>
                         <td>
                             <select class="form-control status-select" data-type="santri" data-nourut="${group.noUrut}" data-index="${index}">
                                 <option value="hadir">حاضر</option>
@@ -712,5 +733,3 @@
     </script>
 </body>
 </html>
-
-
