@@ -283,16 +283,16 @@ function renderHalaqahList(data) {
             acc[item.NoUrut] = {
                 NoUrut: item.NoUrut,
                 musammi: item.musammi,
-                santri: []
+                NamaSantri: []
             };
         }
         
         // PERBAIKAN: Pastikan NamaSantri adalah array sebelum menggunakan spread operator
         if (item.NamaSantri && Array.isArray(item.NamaSantri)) {
-            acc[item.NoUrut].santri.push(...item.NamaSantri);
+            acc[item.NoUrut].NamaSantri.push(...item.NamaSantri);
         } else if (item.NamaSantri) {
             // Jika bukan array tapi ada value, tambahkan sebagai single item
-            acc[item.NoUrut].santri.push(item.NamaSantri);
+            acc[item.NoUrut].NamaSantri.push(item.NamaSantri);
         }
         // Jika NamaSantri undefined/null, tidak menambahkan apa-apa
         
@@ -302,7 +302,7 @@ function renderHalaqahList(data) {
     // Render tabel
     Object.values(groupedData).forEach(group => {
         // Pastikan group.santri adalah array
-        const santriList = Array.isArray(group.santri) ? group.santri : [];
+        const santriList = Array.isArray(group.NamaSantri) ? group.NamaSantri : [];
         
         // Baris untuk musammi
         const musammiRow = document.createElement('tr');
@@ -326,18 +326,6 @@ function renderHalaqahList(data) {
         // Baris untuk setiap santri
         santriList.forEach((santri, index) => {
             // PERBAIKAN: Handle jika santri adalah string atau object
-            let NamaSantri, kelasSantri;
-            
-            if (typeof santri === 'object' && santri !== null) {
-                namaSantri = santri.nama || santri.Nama || 'غير معروف';
-                kelasSantri = santri.kelas || santri.Kelas || 'غير معروف';
-            } else if (typeof santri === 'string') {
-                namaSantri = santri;
-                kelasSantri = 'غير معروف';
-            } else {
-                namaSantri = 'غير معروف';
-                kelasSantri = 'غير معروف';
-            }
             
             const santriRow = document.createElement('tr');
             NamaSantriRow.className = 'NamaSantri-row';
@@ -446,6 +434,7 @@ function renderHalaqahList(data) {
     </script>
 </body>
 </html>
+
 
 
 
