@@ -326,7 +326,7 @@ function renderHalaqahList(data) {
         // Baris untuk setiap santri
         santriList.forEach((santri, index) => {
             // PERBAIKAN: Handle jika santri adalah string atau object
-            let namaSantri, kelasSantri;
+            let NamaSantri, kelasSantri;
             
             if (typeof santri === 'object' && santri !== null) {
                 namaSantri = santri.nama || santri.Nama || 'غير معروف';
@@ -340,12 +340,12 @@ function renderHalaqahList(data) {
             }
             
             const santriRow = document.createElement('tr');
-            santriRow.className = 'santri-row';
+            NamaSantriRow.className = 'NamaSantri-row';
             santriRow.innerHTML = `
-                <td>${namaSantri}</td>
-                <td>${kelasSantri}</td>
+                <td>${NamaSantri}</td>
+                <td>${KelasSantri}</td>
                 <td>
-                    <select class="form-control status-select" data-type="santri" data-id="${group.NoUrut}-${index}">
+                    <select class="form-control status-select" data-type="NamaSantri" data-id="${group.NoUrut}-${index}">
                         <option value="hadir">حاضر</option>
                         <option value="izin">إذن</option>
                         <option value="sakit">مريض</option>
@@ -354,7 +354,7 @@ function renderHalaqahList(data) {
                     </select>
                 </td>
             `;
-            halaqahList.appendChild(santriRow);
+            halaqahList.appendChild(NamaSantriRow);
         });
     });
 }
@@ -400,11 +400,11 @@ function renderHalaqahList(data) {
             });
             
             // Kumpulkan data santri
-            document.querySelectorAll('.status-select[data-type="santri"]').forEach(select => {
+            document.querySelectorAll('.status-select[data-type="NamaSantri"]').forEach(select => {
                 const [NoUrut] = select.dataset.id.split('-');
                 const status = select.value;
                 const row = select.closest('tr');
-                const namaSantri = row.querySelector('td:nth-child(1)').textContent;
+                const NamaSantri = row.querySelector('td:nth-child(1)').textContent;
                 const kelas = row.querySelector('td:nth-child(2)').textContent;
                 
                 attendanceData.push({
@@ -414,7 +414,7 @@ function renderHalaqahList(data) {
                     tipeHalaqah: TipeHalaqah,
                     waktu: Waktu,
                     NoUrut: NoUrut,
-                    nama: namaSantri,
+                    nama: NamaSantri,
                     kelas: kelas,
                     jenis: 'santri',
                     status: status,
@@ -446,6 +446,7 @@ function renderHalaqahList(data) {
     </script>
 </body>
 </html>
+
 
 
 
