@@ -287,14 +287,14 @@ function renderHalaqahList(data) {
             };
         }
         
-        // PERBAIKAN: Pastikan santri adalah array sebelum menggunakan spread operator
-        if (item.santri && Array.isArray(item.santri)) {
-            acc[item.NoUrut].santri.push(...item.santri);
-        } else if (item.santri) {
+        // PERBAIKAN: Pastikan NamaSantri adalah array sebelum menggunakan spread operator
+        if (item.NamaSantri && Array.isArray(item.NamaSantri)) {
+            acc[item.NoUrut].santri.push(...item.NamaSantri);
+        } else if (item.NamaSantri) {
             // Jika bukan array tapi ada value, tambahkan sebagai single item
-            acc[item.NoUrut].santri.push(item.santri);
+            acc[item.NoUrut].santri.push(item.NamaSantri);
         }
-        // Jika santri undefined/null, tidak menambahkan apa-apa
+        // Jika NamaSantri undefined/null, tidak menambahkan apa-apa
         
         return acc;
     }, {});
@@ -308,7 +308,7 @@ function renderHalaqahList(data) {
         const musammiRow = document.createElement('tr');
         musammiRow.className = 'musammi-row';
         musammiRow.innerHTML = `
-            <td rowspan="${santriList.length}">${group.NoUrut}</td>
+            <td rowspan="${santriList.length + 1}">${group.NoUrut}</td>
             <td>${group.musammi || 'غير معروف'}</td>
             <td colspan="2">-</td>
             <td>
@@ -326,14 +326,26 @@ function renderHalaqahList(data) {
         // Baris untuk setiap santri
         santriList.forEach((santri, index) => {
             // PERBAIKAN: Handle jika santri adalah string atau object
+            let NamaSantri, kelasSantri;
+            
+            if (typeof santri === 'object' && santri !== null) {
+                namaSantri = santri.nama || santri.Nama || 'غير معروف';
+                kelasSantri = santri.kelas || santri.Kelas || 'غير معروف';
+            } else if (typeof santri === 'string') {
+                namaSantri = santri;
+                kelasSantri = 'غير معروف';
+            } else {
+                namaSantri = 'غير معروف';
+                kelasSantri = 'غير معروف';
+            }
             
             const santriRow = document.createElement('tr');
-            santriRow.className = 'santri-row';
+            NamaSantriRow.className = 'NamaSantri-row';
             santriRow.innerHTML = `
-                <td>${santri}</td>
-                <td>${Kelassantri}</td>
+                <td>${NamaSantri}</td>
+                <td>${KelasSantri}</td>
                 <td>
-                    <select class="form-control status-select" data-type="santri" data-id="${group.NoUrut}-${index}">
+                    <select class="form-control status-select" data-type="NamaSantri" data-id="${group.NoUrut}-${index}">
                         <option value="hadir">حاضر</option>
                         <option value="izin">إذن</option>
                         <option value="sakit">مريض</option>
@@ -342,7 +354,7 @@ function renderHalaqahList(data) {
                     </select>
                 </td>
             `;
-            halaqahList.appendChild(santriRow);
+            halaqahList.appendChild(NamaSantriRow);
         });
     });
 }
@@ -388,11 +400,11 @@ function renderHalaqahList(data) {
             });
             
             // Kumpulkan data santri
-            document.querySelectorAll('.status-select[data-type="santri"]').forEach(select => {
+            document.querySelectorAll('.status-select[data-type="NamaSantri"]').forEach(select => {
                 const [NoUrut] = select.dataset.id.split('-');
                 const status = select.value;
                 const row = select.closest('tr');
-                const santri = row.querySelector('td:nth-child(1)').textContent;
+                const NamaSantri = row.querySelector('td:nth-child(1)').textContent;
                 const kelas = row.querySelector('td:nth-child(2)').textContent;
                 
                 attendanceData.push({
@@ -402,7 +414,7 @@ function renderHalaqahList(data) {
                     tipeHalaqah: TipeHalaqah,
                     waktu: Waktu,
                     NoUrut: NoUrut,
-                    nama: santri,
+                    nama: NamaSantri,
                     kelas: kelas,
                     jenis: 'santri',
                     status: status,
@@ -434,18 +446,3 @@ function renderHalaqahList(data) {
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
