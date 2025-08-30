@@ -274,14 +274,14 @@
             
             // Kelompokkan data berdasarkan no urut halaqah
             const groupedData = data.reduce((acc, item) => {
-                if (!acc[item.noUrut]) {
-                    acc[item.noUrut] = {
-                        noUrut: item.noUrut,
-                        musammi: item.musammi,
+                if (!acc[item.NoUrut]) {
+                    acc[item.NoUrut] = {
+                        noUrut: item.NoUrut,
+                        musammi: item.NamaMusammi,
                         santri: []
                     };
                 }
-                acc[item.noUrut].santri.push(...item.santri);
+                acc[item.NoUrut].NamaSantri.push(...item.NamaSantri);
                 return acc;
             }, {});
             
@@ -289,13 +289,13 @@
             Object.values(groupedData).forEach(group => {
                 // Baris untuk musammi
                 const musammiRow = document.createElement('tr');
-                musammiRow.className = 'musammi-row';
-                musammiRow.innerHTML = `
-                    <td rowspan="${group.santri.length + 1}">${group.noUrut}</td>
-                    <td>${group.musammi}</td>
+                NamaMusammiRow.className = 'musammi-row';
+                NamaMusammiRow.innerHTML = `
+                    <td rowspan="${group.NamaSantri.length + 1}">${group.NoUrut}</td>
+                    <td>${group.NamaMusammi}</td>
                     <td colspan="2">-</td>
                     <td>
-                        <select class="form-control status-select" data-type="musammi" data-id="${group.noUrut}">
+                        <select class="form-control status-select" data-type="NamaMusammi" data-id="${group.NoUrut}">
                             <option value="hadir">حاضر</option>
                             <option value="izin">إذن</option>
                             <option value="sakit">مريض</option>
@@ -304,7 +304,7 @@
                         </select>
                     </td>
                 `;
-                halaqahList.appendChild(musammiRow);
+                halaqahList.appendChild(NamaMusammiRow);
                 
                 // Baris untuk setiap santri
                 group.santri.forEach((santri, index) => {
@@ -416,3 +416,4 @@
     </script>
 </body>
 </html>
+
