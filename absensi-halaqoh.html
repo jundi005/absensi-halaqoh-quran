@@ -6,310 +6,26 @@
     <title>حضور الحلقة - نظام حضور حلقة القرآن</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
     <style>
-        /* Gaya dasar */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Tajawal', sans-serif;
-        }
         
-        body {
-            background-color: #f5f7fa;
-            color: #333;
-            display: flex;
-            min-height: 100vh;
-        }
-        
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            background: linear-gradient(135deg, #273c75, #192a56);
-            color: white;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            right: 0;
-            padding: 20px 0;
-            transition: all 0.3s ease;
-        }
-        
-        .sidebar-header {
-            text-align: center;
-            padding: 0 20px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .sidebar-logo {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 10px;
-            border: 3px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .sidebar-nav {
-            margin-top: 20px;
-        }
-        
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            transition: all 0.3s;
-            border-right: 3px solid transparent;
-        }
-        
-        .sidebar-nav a:hover, .sidebar-nav a.active {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-right: 3px solid #00a8ff;
-        }
-        
-        .sidebar-nav a i {
-            margin-left: 10px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        /* Konten utama */
-        .main-content {
-            flex: 1;
-            margin-right: 250px;
-            transition: all 0.3s ease;
-        }
-        
-        header {
-            background: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-        }
-        
-        .toggle-sidebar {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            margin-left: 20px;
-            color: #273c75;
-        }
-        
-        .header-right {
-            display: flex;
-            align-items: center;
-        }
-        
-        #currentDate {
-            margin-left: 20px;
-            font-weight: 500;
-            color: #273c75;
-        }
-        
-        .user-profile {
-            display: flex;
-            align-items: center;
-            margin-right: 15px;
-        }
-        
-        .user-profile img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-left: 10px;
-            border: 2px solid #273c75;
-        }
-        
-        /* Konten */
-        .content {
-            padding: 30px;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            margin-bottom: 30px;
-            overflow: hidden;
-        }
-        
-        .card-header {
-            padding: 20px 25px;
-            border-bottom: 1px solid #eee;
-            background: linear-gradient(135deg, #273c75, #192a56);
-            color: white;
-        }
-        
-        .card-body {
-            padding: 25px;
-        }
-        
-        /* Formulir */
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            margin: 0 -10px;
-        }
-        
-        .form-group {
-            flex: 1;
-            min-width: 200px;
-            margin: 0 10px 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #273c75;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus {
-            border-color: #273c75;
-            box-shadow: 0 0 0 3px rgba(39, 60, 117, 0.1);
-            outline: none;
-        }
-        
-        /* Tombol */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 20px;
-            background: #273c75;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .btn:hover {
-            background: #192a56;
-            transform: translateY(-2px);
-        }
-        
-        .btn-primary {
-            background: #00a8ff;
-        }
-        
-        .btn-primary:hover {
-            background: #0097e6;
-        }
-        
-        .btn-success {
-            background: #05c46b;
-        }
-        
-        .btn-success:hover {
-            background: #05a357;
-        }
-        
-        .btn i {
-            margin-left: 8px;
-        }
-        
-        /* Tabel */
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        
-        .table th, .table td {
-            padding: 12px 15px;
-            text-align: right;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .table th {
-            background: #f5f7fa;
-            font-weight: 600;
-            color: #273c75;
-        }
-        
-        .table tr:hover {
-            background: #f9f9f9;
-        }
-        
-        .musammi-row {
-            background: #e3f2fd !important;
-        }
-        
-        /* Alert */
-        .alert {
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            background: #f5f7fa;
-            border-right: 4px solid #273c75;
-        }
-        
-        .alert i {
-            margin-left: 10px;
-            color: #273c75;
-            font-size: 20px;
-        }
-        
-        /* Responsif */
-        @media (max-width: 992px) {
-            .sidebar {
-                right: -250px;
-            }
-            
-            .main-content {
-                margin-right: 0;
-            }
-            
-            .sidebar.active {
-                right: 0;
-            }
-            
-            .main-content.active {
-                margin-right: 250px;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            <img src="https://via.placeholder.com/80" alt="Logo" class="sidebar-logo">
+            <img src="logo.jpg" alt="Logo" class="sidebar-logo">
             <h3>حلقة القرآن</h3>
         </div>
         <nav class="sidebar-nav">
-            <a href="dashboard.html"><i class="fas fa-home"></i> الرئيسية</a>
-            <a href="absensi-santri.html"><i class="fas fa-users"></i> حضور الطلاب</a>
-            <a href="absensi-musammi.html"><i class="fas fa-user-graduate"></i> حضور المسمّعين</a>
-            <a href="absensi-halaqoh.html" class="active"><i class="fas fa-mosque"></i> حضور الحلقة</a>
-            <a href="laporan.html"><i class="fas fa-file-alt"></i> التقارير</a>
-            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
-        </nav>
+    <a href="dashboard.html"><i class="fas fa-home"></i> الرئيسية</a>
+    <a href="absensi-santri.html"><i class="fas fa-users"></i> حضور الطلاب</a>
+    <a href="absensi-musammi.html"><i class="fas fa-user-graduate"></i> حضور المسمّعين</a>
+    <a href="absensi-halaqoh.html"><i class="fas fa-mosque"></i> حضور الحلقة</a>
+    <a href="laporan.html"><i class="fas fa-file-alt"></i> التقارير</a>
+    <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+</nav>
+        <!-- Sidebar sama seperti halaman lainnya -->
     </div>
 
     <div class="main-content">
@@ -323,10 +39,11 @@
             <div class="header-right">
                 <span id="currentDate"></span>
                 <div class="user-profile">
-                    <img src="https://via.placeholder.com/40" alt="User">
+                    <img src="user.png" alt="User">
                     <span>المشرف</span>
                 </div>
             </div>
+            
         </header>
         
         <div class="content">
@@ -405,17 +122,12 @@
 
     <script>
     // Konfigurasi Apps Script
-    const scriptURL = "https://script.google.com/macros/s/AKfycbyHfsNyGn3g2PnQRdYpknzUup2N53JImcqIIyVNgB3L78hffhtyjxiMFFPT587kSNJD/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyHfsNyGn3g2PnQRdYpknzUup2N53JImcqIIyVNgB3L78hffhtyjxiMFFPT587kSNJD/exec"; // Ganti dengan URL deployment GAS Anda
     
     document.addEventListener('DOMContentLoaded', function() {
         // Set tanggal default hari ini
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('attendanceDate').value = today;
-        
-        // Set tanggal saat ini di header
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        const todayFormatted = new Date().toLocaleDateString('ar-EG', options);
-        document.getElementById('currentDate').textContent = todayFormatted;
 
         const marhalahSelect = document.getElementById('marhalah');
         const tipeHalaqahContainer = document.getElementById('tipeHalaqahContainer');
@@ -450,7 +162,6 @@
             if (selectedMarhalah === 'mutawassitoh') {
                 tipeHalaqahContainer.style.display = 'block';
                 waktuContainer.style.display = 'flex';
-                updateWaktuOptions(document.getElementById('tipeHalaqah').value);
             } else if (selectedMarhalah === 'aliyah') {
                 tipeHalaqahContainer.style.display = 'none';
                 updateWaktuOptions('harian');
@@ -470,37 +181,29 @@
 
         function updateWaktuOptions(tipe) {
             waktuHalaqah.innerHTML = '';
-            if (waktuOptions[tipe]) {
-                waktuOptions[tipe].forEach(waktu => {
-                    const option = document.createElement('option');
-                    option.value = waktu;
-                    option.textContent = translateWaktu(waktu);
-                    waktuHalaqah.appendChild(option);
-                });
-            }
+            waktuOptions[tipe].forEach(waktu => {
+                const option = document.createElement('option');
+                option.value = waktu;
+                option.textContent = translateWaktu(waktu);
+                waktuHalaqah.appendChild(option);
+            });
         }
 
         // Fungsi untuk mengambil data dari Google Sheets
         async function getHalaqohData(filters) {
             try {
                 const queryParams = new URLSearchParams();
-                queryParams.append('sheet', 'AbsensiHalaqoh');
-                
-                // Sesuaikan parameter dengan yang diharapkan GAS
-                if (filters.marhalah) queryParams.append('marhalah', filters.marhalah);
-                if (filters.tipe) queryParams.append('tipe', filters.tipe);
-                if (filters.waktu) queryParams.append('waktu', filters.waktu);
-                
-                console.log('Mengambil data dengan parameter:', Object.fromEntries(queryParams));
-                const response = await fetch(`${scriptURL}?${queryParams.toString()}`);
-                
-                if (!response.ok) {
-                    throw new Error('فشل في جلب البيانات من الخادم: ' + response.status);
+                queryParams.append('sheet', 'Data_Halaqoh');
+                for (const [key, value] of Object.entries(filters)) {
+                    if (value) queryParams.append(key, value);
                 }
-                
-                const data = await response.json();
-                console.log('Data diterima dari server:', data);
-                return data;
+                console.log('scriptURL:', scriptURL);
+                console.log('Memulai fetch dengan URL:', `${scriptURL}?${queryParams.toString()}`); // <-- TAMBAHKAN INI
+                const response = await fetch(`${scriptURL}?${queryParams.toString()}`);
+                if (!response.ok) {
+                    throw new Error('فشل في جلب البيانات من الخادم');
+                }
+                return await response.json();
             } catch (error) {
                 console.error('Error fetching data:', error);
                 throw error;
@@ -550,22 +253,16 @@
                     waktu: waktu
                 });
                 
-                console.log('Data halaqah yang diterima:', halaqahData);
-                
-                if (halaqahData && halaqahData.length > 0) {
+                if (halaqahData.length > 0) {
                     renderHalaqahList(halaqahData);
                     halaqahListContainer.style.display = 'block';
                     noDataMessage.style.display = 'none';
                 } else {
                     halaqahListContainer.style.display = 'none';
                     noDataMessage.style.display = 'flex';
-                    noDataMessage.innerHTML = '<i class="fas fa-info-circle"></i> لا توجد حلقة مسجلة لهذه المعايير';
                 }
             } catch (error) {
-                console.error('Error:', error);
                 alert('حدث خطأ أثناء جلب بيانات الحلقة: ' + error.message);
-                noDataMessage.style.display = 'flex';
-                noDataMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> خطأ في جلب البيانات: ${error.message}`;
             } finally {
                 loadHalaqahBtn.disabled = false;
                 loadHalaqahBtn.innerHTML = '<i class="fas fa-search"></i> عرض الحلقات';
@@ -575,33 +272,30 @@
         function renderHalaqahList(data) {
             halaqahList.innerHTML = '';
             
-            // Pastikan data adalah array
-            if (!Array.isArray(data)) {
-                console.error('Data yang diterima bukan array:', data);
-                noDataMessage.style.display = 'flex';
-                noDataMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> تنسيق البيانات غير صحيح';
-                return;
-            }
-            
-            data.forEach(group => {
-                // Pastikan group memiliki properti yang diperlukan
-                if (!group || !group.noUrut || !group.musammi || !group.santri) {
-                    console.error('Struktur group tidak valid:', group);
-                    return;
+            // Kelompokkan data berdasarkan no urut halaqah
+            const groupedData = data.reduce((acc, item) => {
+                if (!acc[item.NoUrut]) {
+                    acc[item.NoUrut] = {
+                        NoUrut: item.NoUrut,
+                        musammi: item.musammi,
+                        santri: []
+                    };
                 }
-                
-                // Pastikan santri adalah array
-                const santriList = Array.isArray(group.santri) ? group.santri : [];
-                
+                acc[item.NoUrut].santri.push(...item.NamaSantri);
+                return acc;
+            }, {});
+            
+            // Render tabel
+            Object.values(groupedData).forEach(group => {
                 // Baris untuk musammi
                 const musammiRow = document.createElement('tr');
                 musammiRow.className = 'musammi-row';
                 musammiRow.innerHTML = `
-                    <td rowspan="${santriList.length + 1}">${group.noUrut}</td>
+                    <td rowspan="${group.santri.length + 1}">${group.NoUrut}</td>
                     <td>${group.musammi}</td>
                     <td colspan="2">-</td>
                     <td>
-                        <select class="form-control status-select" data-type="musammi" data-nourut="${group.noUrut}">
+                        <select class="form-control status-select" data-type="musammi" data-id="${group.NoUrut}">
                             <option value="hadir">حاضر</option>
                             <option value="izin">إذن</option>
                             <option value="sakit">مريض</option>
@@ -613,18 +307,14 @@
                 halaqahList.appendChild(musammiRow);
                 
                 // Baris untuk setiap santri
-                santriList.forEach((santri, index) => {
-                    // Pastikan santri adalah objek dengan properti nama dan kelas
-                    const santriName = santri && santri.nama ? santri.nama : 'غير معروف';
-                    const santriClass = santri && santri.kelas ? santri.kelas : 'غير معروف';
-                    
+                group.santri.forEach((santri, index) => {
                     const santriRow = document.createElement('tr');
                     santriRow.className = 'santri-row';
                     santriRow.innerHTML = `
-                        <td>${santriName}</td>
-                        <td>${santriClass}</td>
+                        <td>${santri.nama}</td>
+                        <td>${santri.kelas}</td>
                         <td>
-                            <select class="form-control status-select" data-type="santri" data-nourut="${group.noUrut}" data-index="${index}">
+                            <select class="form-control status-select" data-type="santri" data-id="${group.NoUrut}-${index}">
                                 <option value="hadir">حاضر</option>
                                 <option value="izin">إذن</option>
                                 <option value="sakit">مريض</option>
@@ -642,7 +332,7 @@
         document.getElementById('submitHalaqahAttendance').addEventListener('click', async function() {
             const date = document.getElementById('attendanceDate').value;
             const marhalah = marhalahSelect.value;
-            const tipeHalaqah = marhalah === 'mutawassitoh' ? document.getElementById('tipeHalaqah').value : 'harian';
+            const tipe = marhalah === 'mutawassitoh' ? document.getElementById('tipeHalaqah').value : 'harian';
             const waktu = waktuHalaqah.value;
             
             if (!date || !marhalah || !waktu) {
@@ -661,19 +351,18 @@
             
             // Kumpulkan data musammi
             document.querySelectorAll('.status-select[data-type="musammi"]').forEach(select => {
-                const noUrut = select.dataset.nourut;
+                const NoUrut = select.dataset.id;
                 const status = select.value;
                 const namaMusammi = select.closest('tr').querySelector('td:nth-child(2)').textContent;
                 
                 attendanceData.push({
                     timestamp: now,
                     date: date,
-                    marhalah: marhalah,
-                    tipeHalaqah: tipeHalaqah,
+                    marhalah: Marhalah,
+                    tipeHalaqah: TipeHalaqah,
                     waktu: waktu,
-                    noUrut: noUrut,
+                    NoUrut: NoUrut,
                     nama: namaMusammi,
-                    kelas: '', // Kosong untuk musammi
                     jenis: 'musammi',
                     status: status,
                     notes: ''
@@ -682,7 +371,7 @@
             
             // Kumpulkan data santri
             document.querySelectorAll('.status-select[data-type="santri"]').forEach(select => {
-                const noUrut = select.dataset.nourut;
+                const [NoUrut] = select.dataset.id.split('-');
                 const status = select.value;
                 const row = select.closest('tr');
                 const namaSantri = row.querySelector('td:nth-child(1)').textContent;
@@ -691,10 +380,10 @@
                 attendanceData.push({
                     timestamp: now,
                     date: date,
-                    marhalah: marhalah,
-                    tipeHalaqah: tipeHalaqah,
-                    waktu: waktu,
-                    noUrut: noUrut,
+                    marhalah: Marhalah,
+                    tipeHalaqah: TipeHalaqah,
+                    waktu: Waktu,
+                    NoUrut: NoUrut,
                     nama: namaSantri,
                     kelas: kelas,
                     jenis: 'santri',
@@ -723,13 +412,12 @@
                 this.innerHTML = '<i class="fas fa-save"></i> حفظ الحضور';
             }
         });
-
-        // Toggle sidebar untuk tampilan mobile
-        document.querySelector('.toggle-sidebar').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('active');
-            document.querySelector('.main-content').classList.toggle('active');
-        });
     });
     </script>
 </body>
 </html>
+
+
+
+
+
