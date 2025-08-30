@@ -7,10 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <style>
-        
-    </style>
 </head>
+    
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
@@ -129,9 +127,9 @@
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('attendanceDate').value = today;
 
-        const marhalahSelect = document.getElementById('marhalah');
-        const tipeHalaqahContainer = document.getElementById('tipeHalaqahContainer');
-        const waktuContainer = document.getElementById('waktuContainer');
+        const marhalahSelect = document.getElementById('Marhalah');
+        const tipeHalaqahContainer = document.getElementById('Tipe');
+        const waktuContainer = document.getElementById('Waktu');
         const waktuHalaqah = document.getElementById('waktuHalaqah');
         const loadHalaqahBtn = document.getElementById('loadHalaqahBtn');
         const halaqahListContainer = document.getElementById('halaqahListContainer');
@@ -235,7 +233,7 @@
         // Tombol untuk memuat data halaqah
         loadHalaqahBtn.addEventListener('click', async function() {
             const marhalah = marhalahSelect.value;
-            const tipe = marhalah === 'mutawassitoh' ? document.getElementById('tipeHalaqah').value : 'harian';
+            const tipe = marhalah === 'mutawassitoh' ? document.getElementById('Tipe').value : 'harian';
             const waktu = waktuHalaqah.value;
             
             if (!marhalah || !waktu) {
@@ -248,9 +246,9 @@
 
             try {
                 const halaqahData = await getHalaqohData({
-                    marhalah: marhalah,
-                    tipe: tipe,
-                    waktu: waktu
+                    Marhalah: Marhalah,
+                    Tipe: Tipe,
+                    Waktu: Waktu
                 });
                 
                 if (halaqahData.length > 0) {
@@ -276,9 +274,9 @@
             const groupedData = data.reduce((acc, item) => {
                 if (!acc[item.NoUrut]) {
                     acc[item.NoUrut] = {
-                        noUrut: item.NoUrut,
-                        musammi: item.NamaMusammi,
-                        santri: []
+                        NoUrut: item.NoUrut,
+                        Musammi: item.NamaMusammi,
+                        NamaSantri: []
                     };
                 }
                 acc[item.NoUrut].NamaSantri.push(...item.NamaSantri);
@@ -307,10 +305,10 @@
                 halaqahList.appendChild(NamaMusammiRow);
                 
                 // Baris untuk setiap santri
-                group.santri.forEach((santri, index) => {
-                    const santriRow = document.createElement('tr');
-                    santriRow.className = 'santri-row';
-                    santriRow.innerHTML = `
+                group.NamaSantri.forEach((NamaSantri, index) => {
+                    const NamaSantriRow = document.createElement('tr');
+                    NamaSantriRow.className = 'santri-row';
+                    NamaSantriRow.innerHTML = `
                         <td>${santri.nama}</td>
                         <td>${santri.kelas}</td>
                         <td>
@@ -350,7 +348,7 @@
             const now = new Date().toISOString();
             
             // Kumpulkan data musammi
-            document.querySelectorAll('.status-select[data-type="musammi"]').forEach(select => {
+            document.querySelectorAll('.status-select[data-type="NamaMusammi"]').forEach(select => {
                 const noUrut = select.dataset.id;
                 const status = select.value;
                 const namaMusammi = select.closest('tr').querySelector('td:nth-child(2)').textContent;
@@ -358,11 +356,11 @@
                 attendanceData.push({
                     timestamp: now,
                     date: date,
-                    marhalah: marhalah,
-                    tipeHalaqah: tipe,
-                    waktu: waktu,
-                    noUrut: noUrut,
-                    nama: namaMusammi,
+                    Marhalah: Marhalah,
+                    Tipe: Tipe,
+                    Waktu: Waktu,
+                    NoUrut: NoUrut,
+                    NamaMusammi: NamaMusammi,
                     jenis: 'musammi',
                     status: status,
                     notes: ''
@@ -380,12 +378,12 @@
                 attendanceData.push({
                     timestamp: now,
                     date: date,
-                    marhalah: marhalah,
-                    tipeHalaqah: tipe,
-                    waktu: waktu,
-                    noUrut: noUrut,
-                    nama: namaSantri,
-                    kelas: kelas,
+                    Marhalah: Marhalah,
+                    Tipe: Tipe,
+                    Waktu: Waktu,
+                    NoUrut: NoUrut,
+                    NamaSantri: namaSantri,
+                    Kelas: Kelas,
                     jenis: 'santri',
                     status: status,
                     notes: ''
@@ -416,4 +414,5 @@
     </script>
 </body>
 </html>
+
 
