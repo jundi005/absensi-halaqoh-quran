@@ -189,27 +189,34 @@
             });
         }
 
-        // Fungsi untuk mengambil data dari Google Sheets
-        async function getHalaqohData(filters) {
-            try {
-                const queryParams = new URLSearchParams();
-                queryParams.append('sheet', 'Data_Halaqoh');
-                for (const [key, value] of Object.entries(filters)) {
-                    if (value) queryParams.append(key, value);
-                }
-                console.log('scriptURL:', scriptURL);
-                console.log('Memulai fetch dengan URL:', `${scriptURL}?${queryParams.toString()}`); // <-- TAMBAHKAN INI
-                const response = await fetch(`${scriptURL}?${queryParams.toString()}`);
-                if (!response.ok) {
-                    throw new Error('فشل في جلب البيانات من الخادم');
-                }
-                return await response.json();
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                throw error;
-            }
+ // Fungsi untuk mengambil data dari Google Sheets
+async function getHalaqohData(filters) {
+    try {
+        const queryParams = new URLSearchParams();
+        queryParams.append('sheet', 'Data_Halaqoh');
+        for (const [key, value] of Object.entries(filters)) {
+            if (value) queryParams.append(key, value);
         }
-
+        
+        const response = await fetch(`${scriptURL}?${queryParams.toString()}`);
+        if (!response.ok) {
+            throw new Error('فشل في جلب البيانات من الخادم: ' + response.status);
+        }
+        
+        const data = await response.json();
+        
+        // PERBAIKAN: Pastikan response adalah array
+        if (!Array.isArray(data)) {
+            console.warn('Data dari server bukan array:', data);
+            return [];
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+}
         // Fungsi untuk menyimpan data ke Google Sheets
         async function saveAttendanceData(data) {
             try {
@@ -232,102 +239,130 @@
             }
         }
 
-        // Tombol untuk memuat data halaqah
-        loadHalaqahBtn.addEventListener('click', async function() {
-            const marhalah = marhalahSelect.value;
-            const tipe = marhalah === 'mutawassitoh' ? document.getElementById('tipeHalaqah').value : 'harian';
-            const waktu = waktuHalaqah.value;
-            
-            if (!marhalah || !waktu) {
-                alert('الرجاء اختيار جميع الحقول المطلوبة');
-                return;
-            }
+// Tombol untuk memuat data halaqah
+loadHalaqahBtn.addEventListener('click', async function() {
+    const marhalah = marhalahSelect.value;
+    const tipe = marhalah === 'mutawassitoh' ? document.getElementById('tipeHalaqah').value : 'harian';
+    const waktu = waktuHalaqah.value;
+    
+    if (!marhalah || !waktu) {
+        alert('الرجاء اختيار جميع الحقول المطلوبة');
+        return;
+    }
 
-            loadHalaqahBtn.disabled = true;
-            loadHalaqahBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ التحميل...';
+    loadHalaqahBtn.disabled = true;
+    loadHalaqahBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ التحميل...';
 
-            try {
-                const halaqahData = await getHalaqohData({
-                    marhalah: marhalah,
-                    tipe: tipe,
-                    waktu: waktu
-                });
-                
-                if (halaqahData.length > 0) {
-                    renderHalaqahList(halaqahData);
-                    halaqahListContainer.style.display = 'block';
-                    noDataMessage.style.display = 'none';
-                } else {
-                    halaqahListContainer.style.display = 'none';
-                    noDataMessage.style.display = 'flex';
-                }
-            } catch (error) {
-                alert('حدث خطأ أثناء جلب بيانات الحلقة: ' + error.message);
-            } finally {
-                loadHalaqahBtn.disabled = false;
-                loadHalaqahBtn.innerHTML = '<i class="fas fa-search"></i> عرض الحلقات';
-            }
+    try {
+        const halaqahData = await getHalaqohData({
+            marhalah: marhalah,
+            tipe: tipe,
+            waktu: waktu
         });
-
-        function renderHalaqahList(data) {
-            halaqahList.innerHTML = '';
-            
-            // Kelompokkan data berdasarkan no urut halaqah
-            const groupedData = data.reduce((acc, item) => {
-                if (!acc[item.NoUrut]) {
-                    acc[item.NoUrut] = {
-                        NoUrut: item.NoUrut,
-                        musammi: item.musammi,
-                        santri: []
-                    };
-                }
-                acc[item.NoUrut].santri.push(...item.NamaSantri);
-                return acc;
-            }, {});
-            
-            // Render tabel
-            Object.values(groupedData).forEach(group => {
-                // Baris untuk musammi
-                const musammiRow = document.createElement('tr');
-                musammiRow.className = 'musammi-row';
-                musammiRow.innerHTML = `
-                    <td rowspan="${group.santri.length + 1}">${group.NoUrut}</td>
-                    <td>${group.musammi}</td>
-                    <td colspan="2">-</td>
-                    <td>
-                        <select class="form-control status-select" data-type="musammi" data-id="${group.NoUrut}">
-                            <option value="hadir">حاضر</option>
-                            <option value="izin">إذن</option>
-                            <option value="sakit">مريض</option>
-                            <option value="alpa">غائب</option>
-                            <option value="terlambat">متأخر</option>
-                        </select>
-                    </td>
-                `;
-                halaqahList.appendChild(musammiRow);
-                
-                // Baris untuk setiap santri
-                group.santri.forEach((santri, index) => {
-                    const santriRow = document.createElement('tr');
-                    santriRow.className = 'santri-row';
-                    santriRow.innerHTML = `
-                        <td>${santri.nama}</td>
-                        <td>${santri.kelas}</td>
-                        <td>
-                            <select class="form-control status-select" data-type="santri" data-id="${group.NoUrut}-${index}">
-                                <option value="hadir">حاضر</option>
-                                <option value="izin">إذن</option>
-                                <option value="sakit">مريض</option>
-                                <option value="alpa">غائب</option>
-                                <option value="terlambat">متأخر</option>
-                            </select>
-                        </td>
-                    `;
-                    halaqahList.appendChild(santriRow);
-                });
-            });
+        
+        console.log('Data yang diterima dari server:', halaqahData); // Debugging
+        
+        if (halaqahData && halaqahData.length > 0) {
+            renderHalaqahList(halaqahData);
+            halaqahListContainer.style.display = 'block';
+            noDataMessage.style.display = 'none';
+        } else {
+            halaqahListContainer.style.display = 'none';
+            noDataMessage.style.display = 'flex';
+            noDataMessage.innerHTML = '<i class="fas fa-info-circle"></i> لا توجد حلقة مسجلة لهذه المعايير';
         }
-
+    } catch (error) {
+        console.error('Error detail:', error); // Debugging
+        alert('حدث خطأ أثناء جلب بيانات الحلقة: ' + error.message);
+    } finally {
+        loadHalaqahBtn.disabled = false;
+        loadHalaqahBtn.innerHTML = '<i class="fas fa-search"></i> عرض الحلقات';
+    }
+});
+function renderHalaqahList(data) {
+    halaqahList.innerHTML = '';
+    
+    // Kelompokkan data berdasarkan no urut halaqah
+    const groupedData = data.reduce((acc, item) => {
+        if (!acc[item.NoUrut]) {
+            acc[item.NoUrut] = {
+                NoUrut: item.NoUrut,
+                musammi: item.musammi,
+                santri: []
+            };
+        }
+        
+        // PERBAIKAN: Pastikan NamaSantri adalah array sebelum menggunakan spread operator
+        if (item.NamaSantri && Array.isArray(item.NamaSantri)) {
+            acc[item.NoUrut].santri.push(...item.NamaSantri);
+        } else if (item.NamaSantri) {
+            // Jika bukan array tapi ada value, tambahkan sebagai single item
+            acc[item.NoUrut].santri.push(item.NamaSantri);
+        }
+        // Jika NamaSantri undefined/null, tidak menambahkan apa-apa
+        
+        return acc;
+    }, {});
+    
+    // Render tabel
+    Object.values(groupedData).forEach(group => {
+        // Pastikan group.santri adalah array
+        const santriList = Array.isArray(group.santri) ? group.santri : [];
+        
+        // Baris untuk musammi
+        const musammiRow = document.createElement('tr');
+        musammiRow.className = 'musammi-row';
+        musammiRow.innerHTML = `
+            <td rowspan="${santriList.length + 1}">${group.NoUrut}</td>
+            <td>${group.musammi || 'غير معروف'}</td>
+            <td colspan="2">-</td>
+            <td>
+                <select class="form-control status-select" data-type="musammi" data-id="${group.NoUrut}">
+                    <option value="hadir">حاضر</option>
+                    <option value="izin">إذن</option>
+                    <option value="sakit">مريض</option>
+                    <option value="alpa">غائب</option>
+                    <option value="terlambat">متأخر</option>
+                </select>
+            </td>
+        `;
+        halaqahList.appendChild(musammiRow);
+        
+        // Baris untuk setiap santri
+        santriList.forEach((santri, index) => {
+            // PERBAIKAN: Handle jika santri adalah string atau object
+            let namaSantri, kelasSantri;
+            
+            if (typeof santri === 'object' && santri !== null) {
+                namaSantri = santri.nama || santri.Nama || 'غير معروف';
+                kelasSantri = santri.kelas || santri.Kelas || 'غير معروف';
+            } else if (typeof santri === 'string') {
+                namaSantri = santri;
+                kelasSantri = 'غير معروف';
+            } else {
+                namaSantri = 'غير معروف';
+                kelasSantri = 'غير معروف';
+            }
+            
+            const santriRow = document.createElement('tr');
+            santriRow.className = 'santri-row';
+            santriRow.innerHTML = `
+                <td>${namaSantri}</td>
+                <td>${kelasSantri}</td>
+                <td>
+                    <select class="form-control status-select" data-type="santri" data-id="${group.NoUrut}-${index}">
+                        <option value="hadir">حاضر</option>
+                        <option value="izin">إذن</option>
+                        <option value="sakit">مريض</option>
+                        <option value="alpa">غائب</option>
+                        <option value="terlambat">متأخر</option>
+                    </select>
+                </td>
+            `;
+            halaqahList.appendChild(santriRow);
+        });
+    });
+}
         // Tombol submit absensi
         document.getElementById('submitHalaqahAttendance').addEventListener('click', async function() {
             const date = document.getElementById('attendanceDate').value;
@@ -416,6 +451,7 @@
     </script>
 </body>
 </html>
+
 
 
 
